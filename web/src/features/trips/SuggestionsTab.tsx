@@ -9,6 +9,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../lib/utils";
 import { Alert } from "../../shared/ui/Alert";
+import { can, canChange, roleOf } from "./tripRoles";
 import { addSuggestion, castVote, deleteSuggestion, listSuggestions, listVotes, memberName } from "./tripsApi";
 import type { Suggestion, SuggestionType, Trip, Vote } from "./tripsApi";
 
@@ -34,6 +35,8 @@ export function useScoredSuggestions(trip: Trip, myId: string | undefined) {
 }
 
 export function SuggestionsTab({ me, trip }: { me: { id: string; name: string }; trip: Trip }) {
+  const role = roleOf(trip, me.id);
+  const canContribute = can(role, "contribute");
   const { t } = useT();
   const queryClient = useQueryClient();
   const { error, isLoading, rows } = useScoredSuggestions(trip, me.id);
@@ -64,7 +67,7 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
 
   return (
     <div>
-      <form className="panel grid gap-3 p-4" onSubmit={submit}>
+      {canContribute ? <form className="panel grid gap-3 p-4" onSubmit={submit}>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Input aria-label={t("suggest.title")} placeholder={t("suggest.placeholder")} value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
           <Button type="submit" disabled={!form.title.trim() || add.isPending}><Plus size={18} /> {t("suggest.add")}</Button>
@@ -95,7 +98,7 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
             ) : null}
           </AnimatePresence>
         </div>
-      </form>
+      </form> : <ReadOnlyNote />}
 
       {[error, add.error, vote.error, remove.error].filter(Boolean).map((err, index) => <Alert key={index} tone="error">{(err as Error).message}</Alert>)}
 
@@ -116,7 +119,7 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
                   className={cn("panel suggestion-row", index === 0 && row.score > 0 && "top-pick")}
                 >
                   <div className="vote-box">
-                    <motion.button whileTap={{ scale: 0.8, rotate: -12 }} className={`icon-button ${row.myVote?.value === 1 ? "voted" : ""}`} aria-label={t("suggest.upvote")} aria-pressed={row.myVote?.value === 1} disabled={vote.isPending} onClick={() => vote.mutate({ row, value: 1 })}>
+                    <motion.button whileTap={{ scale: 0.8, rotate: -12 }} className={`icon-button ${row.myVote?.value === 1 ? "voted" : ""}`} aria-label={t("suggest.upvote")} aria-pressed={row.myVote?.value === 1} disabled={vote.isPending || !canContribute} onClick={() => vote.mutate({ row, value: 1 })}>
                       <ThumbsUp size={16} />
                     </motion.button>
                     <AnimatePresence mode="popLayout" initial={false}>
@@ -124,7 +127,7 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
                         {row.score}
                       </motion.strong>
                     </AnimatePresence>
-                    <motion.button whileTap={{ scale: 0.8, rotate: 12 }} className={`icon-button ${row.myVote?.value === -1 ? "voted" : ""}`} aria-label={t("suggest.downvote")} aria-pressed={row.myVote?.value === -1} disabled={vote.isPending} onClick={() => vote.mutate({ row, value: -1 })}>
+                    <motion.button whileTap={{ scale: 0.8, rotate: 12 }} className={`icon-button ${row.myVote?.value === -1 ? "voted" : ""}`} aria-label={t("suggest.downvote")} aria-pressed={row.myVote?.value === -1} disabled={vote.isPending || !canContribute} onClick={() => vote.mutate({ row, value: -1 })}>
                       <ThumbsDown size={16} />
                     </motion.button>
                   </div>
@@ -137,7 +140,7 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
                     </span>
                     {row.notes ? <p>{row.notes}</p> : null}
                   </div>
-                  {row.CreatedBy === me.id ? (
+                  {canChange(role, row, me.id) ? (
                     <button className="icon-button" aria-label={t("common.delete")} disabled={remove.isPending} onClick={() => remove.mutate(row)}>
                       <Trash2 size={16} />
                     </button>
@@ -150,4 +153,9 @@ export function SuggestionsTab({ me, trip }: { me: { id: string; name: string };
       )}
     </div>
   );
+}
+
+export function ReadOnlyNote() {
+  const { t } = useT();
+  return <p className="panel text-sm text-muted-foreground">{t("tripRole.viewer.note")}</p>;
 }

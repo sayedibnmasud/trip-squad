@@ -4,12 +4,10 @@ import { useAuth } from "../../app/providers/AuthProvider";
 import { blocksConfig } from "../../lib/blocks/config";
 import { useT } from "../../lib/i18n/LocalizationProvider";
 import { ActionButton } from "../../shared/ui/ActionButton";
-import { ChipList } from "../../shared/ui/Chip";
 import { JsonPanel } from "../../shared/ui/JsonPanel";
 import { PageHeader } from "../../shared/ui/PageHeader";
 import { Skeleton } from "../../shared/ui/Skeleton";
 import { StatusPill } from "../../shared/ui/StatusPill";
-import { claimList } from "../admin/roles";
 import { useCurrentUser, userDisplayName, userInitials } from "./useCurrentUser";
 
 export function ProfilePage() {
@@ -18,9 +16,6 @@ export function ProfilePage() {
   const { t } = useT();
   const profile = me.data?.data;
   const name = userDisplayName(profile);
-  // Only directly assigned permissions are visible to the browser; those
-  // granted through roles are resolved server-side by the gateway.
-  const permissions = [...new Set([...claimList(claims, "permissions"), ...(profile?.permissions ?? [])])];
   const issuedAt = typeof claims?.iat === "number" ? new Date((claims.iat as number) * 1000) : undefined;
   const expiresAt = typeof claims?.exp === "number" ? new Date((claims.exp as number) * 1000) : undefined;
 
@@ -57,16 +52,6 @@ export function ProfilePage() {
         <DetailCard icon={<UserRound size={16} />} label="User ID" loading={me.isLoading} value={profile?.itemId} />
         <DetailCard icon={<ShieldCheck size={16} />} label="Tenant id (x-blocks-key)" value={blocksConfig.xBlocksKey} />
         <DetailCard icon={<Clock size={16} />} label="Session expires" value={expiresAt?.toLocaleString()} />
-      </div>
-
-      <div className="panel">
-        <div className="panel-title"><ShieldCheck size={16} /><span>Roles</span></div>
-        {me.isLoading ? <Skeleton className="skeleton-line" /> : <ChipList empty="No roles assigned" items={profile?.roles} />}
-      </div>
-
-      <div className="panel">
-        <div className="panel-title"><ShieldCheck size={16} /><span>Directly assigned permissions ({permissions.length})</span></div>
-        {me.isLoading ? <Skeleton className="skeleton-line" /> : <ChipList empty="None. Permissions granted through your roles aren't listed here." items={permissions} />}
       </div>
 
       <div className="panel">

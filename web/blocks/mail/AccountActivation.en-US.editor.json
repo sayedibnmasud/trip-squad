@@ -121,7 +121,7 @@
                     "computedStyle": {
                       "linkColor": "#124191"
                     },
-                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0 0 16px 0;font-size:28px;line-height:34px;color:#0F172A;font-weight:800;\">You're invited to Trip Squad</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">Hi there,</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">An account has been created for you on Trip Squad, where your group plans trips together: suggest places and vote on them, build a day-by-day itinerary, and keep track of who paid for what.</p><p style=\"margin:0;font-size:16px;line-height:25px;color:#334155;\">Activate your account and choose a password to get started.</p></div>",
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0 0 16px 0;font-size:28px;line-height:34px;color:#0F172A;font-weight:800;\">Welcome to Trip Squad</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">Hi there,</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">Thanks for signing up for Trip Squad, where your group plans trips together: suggest places and vote on them, build a day-by-day itinerary, and keep track of who paid for what.</p><p style=\"margin:0;font-size:16px;line-height:25px;color:#334155;\">Activate your account and choose a password to get started.</p></div>",
                     "style": {
                       "color": "#475569",
                       "font-family": "inherit",
@@ -263,7 +263,7 @@
                     "computedStyle": {
                       "linkColor": "#124191"
                     },
-                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0;font-size:12px;line-height:18px;color:#94A3B8;\">You're receiving this because a Trip Squad admin invited this email address. If you weren't expecting it, you can ignore this email and no account will be activated.</p></div>",
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0;font-size:12px;line-height:18px;color:#94A3B8;\">You're receiving this because someone signed up for Trip Squad with this email address. If it wasn't you, you can ignore this email and no account will be activated.</p></div>",
                     "style": {
                       "color": "#262626",
                       "font-family": "inherit",

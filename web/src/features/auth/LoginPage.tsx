@@ -5,7 +5,7 @@ import { isLoginConfigured } from "../../lib/blocks/config";
 import { useT } from "../../lib/i18n/LocalizationProvider";
 import { Alert } from "../../shared/ui/Alert";
 
-export function LoginPage({ returnTo }: { returnTo?: string }) {
+export function LoginPage({ onNavigate, returnTo }: { onNavigate?: (path: string) => void; returnTo?: string }) {
   const { login } = useAuth();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -52,6 +52,11 @@ export function LoginPage({ returnTo }: { returnTo?: string }) {
           <button className="primary-button auth-submit" disabled={!configured || pending} onClick={handleLogin}>
             <LogIn size={18} /> {pending ? t("auth.redirecting") : t("auth.continue")}
           </button>
+          {onNavigate ? (
+            <p className="text-sm">
+              {t("signup.noAccount")} <button type="button" className="link-button" onClick={() => onNavigate("/signup")}>{t("signup.title")}</button>
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

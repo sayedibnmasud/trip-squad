@@ -65,6 +65,24 @@
       "isUniqueData": false,
       "description": "IAM user ids of the trip's members. Copied from the parent Trip so row-level policies can check membership on this record.",
       "requiredOn": "Insert"
+    },
+    {
+      "name": "editorIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Copy of the trip's editorIds, for editor rights on this row",
+      "requiredOn": "None"
+    },
+    {
+      "name": "tripOwnerId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Copy of the trip's CreatedBy (owner), for the owner's edit rights on this row",
+      "requiredOn": "None"
     }
   ]
 }

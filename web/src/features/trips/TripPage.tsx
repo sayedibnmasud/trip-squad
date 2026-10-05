@@ -1,16 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, MapPin, Navigation, Users } from "lucide-react";
+import { CalendarDays, MapPin, Navigation, Pencil, Trash2, Users } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { AnimatedTabs } from "../../components/ui/animated-tabs";
+import { Button } from "../../components/ui/button";
+import { Dialog } from "../../components/ui/dialog";
+import { ConfirmDialog } from "../../shared/ui/ConfirmDialog";
 import { useT } from "../../lib/i18n/LocalizationProvider";
 import { Alert } from "../../shared/ui/Alert";
 import { ExpensesTab } from "./ExpensesTab";
 import { ItineraryTab } from "./ItineraryTab";
-import { MembersTab } from "./MembersTab";
-import { formatRange } from "./MyTripsPage";
+import { MembersTab, RoleBadge } from "./MembersTab";
+import { formatRange, TripFormDialog } from "./MyTripsPage";
 import { SuggestionsTab } from "./SuggestionsTab";
-import { getTrip } from "./tripsApi";
+import { can, roleOf } from "./tripRoles";
+import { deleteTrip, getTrip } from "./tripsApi";
 import { useMe } from "./useMe";
 
 // Leaflet is only fetched when a trip with a map is opened.
@@ -19,17 +23,28 @@ const TripMap = lazy(() => import("./TripMap").then((module) => ({ default: modu
 const TABS = ["suggestions", "itinerary", "expenses", "members"] as const;
 type Tab = (typeof TABS)[number];
 
-export function TripPage({ tripId }: { tripId: string }) {
+export function TripPage({ onNavigate, tripId }: { onNavigate: (path: string) => void; tripId: string }) {
   const { language, t } = useT();
   const me = useMe();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("suggestions");
+  const [editing, setEditing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const trip = useQuery({ queryKey: ["trip", tripId], queryFn: () => getTrip(tripId) });
+  const remove = useMutation({
+    mutationFn: () => deleteTrip(trip.data!),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["trips"] });
+      onNavigate("/");
+    }
+  });
 
   if (trip.isLoading || !me) return <p className="muted">{t("common.loading")}</p>;
   if (trip.isError) return <Alert tone="error">{(trip.error as Error).message}</Alert>;
   if (!trip.data) return <Alert tone="error">{t("trip.notFound")}</Alert>;
 
   const data = trip.data;
+  const role = roleOf(data, me.id);
   const point = typeof data.destinationLat === "number" && typeof data.destinationLng === "number"
     ? { lat: data.destinationLat, lng: data.destinationLng }
     : undefined;
@@ -51,7 +66,8 @@ export function TripPage({ tripId }: { tripId: string }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 220, damping: 24, delay: 0.12 }}
         >
-          <div>
+          <div className="min-w-0 flex-1">
+            <div className="mb-2"><RoleBadge role={role} /></div>
             <h2>{data.name}</h2>
             <div className="trip-hero-meta">
               <span><MapPin size={16} /> {data.destination}</span>
@@ -60,6 +76,12 @@ export function TripPage({ tripId }: { tripId: string }) {
               <span><Users size={16} /> {data.memberIds.length} {t("trips.members")}</span>
             </div>
           </div>
+          {can(role, "editTrip") ? (
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setEditing(true)}><Pencil size={16} /> {t("trip.edit")}</Button>
+              <Button variant="ghost" size="icon" aria-label={t("trip.delete")} onClick={() => setDeleting(true)}><Trash2 size={18} /></Button>
+            </div>
+          ) : null}
         </motion.div>
       </header>
 
@@ -77,9 +99,23 @@ export function TripPage({ tripId }: { tripId: string }) {
           {tab === "suggestions" ? <SuggestionsTab me={me} trip={data} /> : null}
           {tab === "itinerary" ? <ItineraryTab me={me} trip={data} /> : null}
           {tab === "expenses" ? <ExpensesTab me={me} trip={data} /> : null}
-          {tab === "members" ? <MembersTab trip={data} /> : null}
+          {tab === "members" ? <MembersTab me={me} trip={data} /> : null}
         </motion.div>
       </AnimatePresence>
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        {editing ? <TripFormDialog trip={data} onClose={() => setEditing(false)} onSaved={() => undefined} /> : null}
+      </Dialog>
+      {deleting ? (
+        <ConfirmDialog
+          title={t("trip.delete")}
+          message={`${data.name}: ${t("trip.deleteConfirm")}${remove.isError ? `\n\n${(remove.error as Error).message}` : ""}`}
+          confirmLabel={t("trip.delete")}
+          busy={remove.isPending}
+          onCancel={() => setDeleting(false)}
+          onConfirm={() => remove.mutate()}
+        />
+      ) : null}
     </section>
   );
 }

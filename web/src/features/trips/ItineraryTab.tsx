@@ -8,9 +8,11 @@ import { arrangeItinerary, tripDays } from "./itinerary";
 import { listItinerary, saveItineraryDay } from "./tripsApi";
 import type { ItineraryDay, Trip } from "./tripsApi";
 import { useScoredSuggestions } from "./SuggestionsTab";
+import { can, roleOf } from "./tripRoles";
 
 export function ItineraryTab({ me, trip }: { me: { id: string }; trip: Trip }) {
   const { language, t } = useT();
+  const canEdit = can(roleOf(trip, me.id), "editItinerary");
   const queryClient = useQueryClient();
   const saved = useQuery({ queryKey: ["itinerary", trip.ItemId], queryFn: () => listItinerary(trip.ItemId) });
   const { rows } = useScoredSuggestions(trip, me.id);
@@ -38,7 +40,7 @@ export function ItineraryTab({ me, trip }: { me: { id: string }; trip: Trip }) {
 
   return (
     <div>
-      <div className="panel arrange-panel">
+      {canEdit ? <div className="panel arrange-panel">
         <div>
           <strong>{t("itinerary.arrange")}</strong>
           <p>{t("itinerary.arrangeHint")}</p>
@@ -46,7 +48,7 @@ export function ItineraryTab({ me, trip }: { me: { id: string }; trip: Trip }) {
         <ActionButton icon={<Wand2 size={16} />} disabled={arrange.isPending || days.length === 0} onClick={() => arrange.mutate()}>
           {t("itinerary.arrangeAction")}
         </ActionButton>
-      </div>
+      </div> : <p className="panel text-sm text-muted-foreground">{t("itinerary.editorsOnly")}</p>}
 
       {notice ? <Alert tone="info">{notice}</Alert> : null}
       {[saved.error, arrange.error].filter(Boolean).map((err, index) => <Alert key={index} tone="error">{(err as Error).message}</Alert>)}
@@ -58,7 +60,7 @@ export function ItineraryTab({ me, trip }: { me: { id: string }; trip: Trip }) {
             <div className="day-head">
               <span className="day-number">{t("itinerary.day")} {index + 1}</span>
               <span className="day-date">{new Date(`${date}T00:00:00Z`).toLocaleDateString(language, { weekday: "long", day: "numeric", month: "short", timeZone: "UTC" })}</span>
-              {editing === date ? null : (
+              {editing === date || !canEdit ? null : (
                 <button className="icon-button day-edit" aria-label={t("itinerary.edit")} onClick={() => setEditing(date)}><Pencil size={14} /></button>
               )}
             </div>

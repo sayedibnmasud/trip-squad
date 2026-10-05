@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { AppShell } from "../app/layout/AppShell";
 import { LoginPage } from "../features/auth/LoginPage";
+import { SignupPage } from "../features/auth/SignupPage";
 import { MyTripsPage } from "../features/trips/MyTripsPage";
 import { TripPage } from "../features/trips/TripPage";
 
@@ -16,9 +17,9 @@ const NAMES = ["Sayed Admin", "Nadia Rahman", "Rafi Hasan", "Tanvir Alam"];
 const day = (iso: string) => `${iso}T00:00:00.000Z`;
 
 const TRIPS = [
-  { ItemId: "t-cox", name: "Winter beach weekend", destination: "Cox's Bazar, Chattogram Division, Bangladesh", destinationLat: 21.4272, destinationLng: 92.0058, startDate: day("2026-12-12"), endDate: day("2026-12-15"), memberIds: MEMBERS, memberNames: NAMES, inviteCode: "abc" },
-  { ItemId: "t-sajek", name: "Sajek with the office gang", destination: "Sajek Valley, Rangamati, Bangladesh", destinationLat: 23.3818, destinationLng: 92.2938, startDate: day("2027-01-23"), endDate: day("2027-01-25"), memberIds: MEMBERS.slice(0, 3), memberNames: NAMES.slice(0, 3), inviteCode: "abc" },
-  { ItemId: "t-pokhara", name: "Pokhara after exams", destination: "Pokhara, Gandaki Province, Nepal", destinationLat: 28.2096, destinationLng: 83.9856, startDate: day("2027-03-02"), endDate: day("2027-03-08"), memberIds: MEMBERS.slice(0, 2), memberNames: NAMES.slice(0, 2), inviteCode: "abc" }
+  { ItemId: "t-cox", name: "Winter beach weekend", destination: "Cox's Bazar, Chattogram Division, Bangladesh", destinationLat: 21.4272, destinationLng: 92.0058, startDate: day("2026-12-12"), endDate: day("2026-12-15"), memberIds: MEMBERS, memberNames: NAMES, editorIds: ["u-me", "u-nadia"], viewerIds: ["u-tanvir"], CreatedBy: "u-me", inviteCode: "abc" },
+  { ItemId: "t-sajek", name: "Sajek with the office gang", destination: "Sajek Valley, Rangamati, Bangladesh", destinationLat: 23.3818, destinationLng: 92.2938, startDate: day("2027-01-23"), endDate: day("2027-01-25"), memberIds: MEMBERS.slice(0, 3), memberNames: NAMES.slice(0, 3), editorIds: ["u-nadia"], viewerIds: [], CreatedBy: "u-nadia", inviteCode: "abc" },
+  { ItemId: "t-pokhara", name: "Pokhara after exams", destination: "Pokhara, Gandaki Province, Nepal", destinationLat: 28.2096, destinationLng: 83.9856, startDate: day("2027-03-02"), endDate: day("2027-03-08"), memberIds: MEMBERS.slice(0, 2), memberNames: NAMES.slice(0, 2), editorIds: ["u-me"], viewerIds: [], CreatedBy: "u-me", inviteCode: "abc" }
 ];
 
 const SUGGESTIONS = [
@@ -47,7 +48,7 @@ function Seed({ children, empty }: { children: ReactNode; empty?: boolean }) {
   const queryClient = useQueryClient();
   useState(() => {
     queryClient.setDefaultOptions({ queries: { staleTime: Infinity, retry: false } });
-    queryClient.setQueryData(["iam", "me"], { data: { itemId: ME.id, firstName: "Sayed", lastName: "Admin", email: "admin@example.com", roles: ["tripsquad-admin"], permissions: [] } });
+    queryClient.setQueryData(["iam", "me"], { data: { itemId: ME.id, firstName: "Sayed", lastName: "Admin", email: "admin@example.com", roles: ["traveler"], permissions: [] } });
     queryClient.setQueryData(["trips"], empty ? [] : TRIPS);
     for (const trip of TRIPS) queryClient.setQueryData(["trip", trip.ItemId], trip);
     queryClient.setQueryData(["suggestions", "t-cox"], SUGGESTIONS);
@@ -62,11 +63,12 @@ function Seed({ children, empty }: { children: ReactNode; empty?: boolean }) {
 export function DesignPreview({ path }: { path: string }) {
   const noop = () => undefined;
   const page = path.replace(/^\/__preview\/?/, "");
-  if (page === "login") return <LoginPage />;
+  if (page === "login") return <LoginPage onNavigate={noop} />;
+  if (page === "signup") return <SignupPage onNavigate={noop} />;
   return (
     <Seed empty={page === "empty"}>
       <AppShell activePath="/" onNavigate={noop}>
-        {page === "trip" ? <TripPage tripId="t-cox" /> : <MyTripsPage onNavigate={noop} />}
+        {page === "trip" ? <TripPage tripId="t-cox" onNavigate={noop} /> : page === "trip-viewer" ? <TripPage tripId="t-sajek" onNavigate={noop} /> : <MyTripsPage onNavigate={noop} />}
       </AppShell>
     </Seed>
   );

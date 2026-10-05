@@ -7,10 +7,13 @@ import { ActionButton } from "../../shared/ui/ActionButton";
 import { Alert } from "../../shared/ui/Alert";
 import { FormField } from "../../shared/ui/FormField";
 import { computeBalances, settleUp } from "./balances";
+import { ReadOnlyNote } from "./SuggestionsTab";
+import { can, canChange, roleOf } from "./tripRoles";
 import { addExpense, deleteExpense, listExpenses, memberName } from "./tripsApi";
 import type { Trip } from "./tripsApi";
 
 export function ExpensesTab({ me, trip }: { me: { id: string }; trip: Trip }) {
+  const role = roleOf(trip, me.id);
   const { t } = useT();
   const queryClient = useQueryClient();
   const expenses = useQuery({ queryKey: ["expenses", trip.ItemId], queryFn: () => listExpenses(trip.ItemId) });
@@ -53,7 +56,7 @@ export function ExpensesTab({ me, trip }: { me: { id: string }; trip: Trip }) {
   return (
     <div className="expense-layout">
       <div>
-        <form className="panel form-grid" onSubmit={submit}>
+        {can(role, "contribute") ? <form className="panel form-grid" onSubmit={submit}>
           <FormField label={t("expense.description")} required value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
           <FormField label={t("expense.amount")} required type="number" min="0.01" step="0.01" inputMode="decimal" value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} />
           <FormField label={t("expense.currency")} required maxLength={3} value={form.currency} onChange={(event) => setForm({ ...form, currency: event.target.value })} />
@@ -74,7 +77,7 @@ export function ExpensesTab({ me, trip }: { me: { id: string }; trip: Trip }) {
           <div className="form-actions">
             <ActionButton type="submit" disabled={!valid || add.isPending}>{t("expense.add")}</ActionButton>
           </div>
-        </form>
+        </form> : <ReadOnlyNote />}
 
         {[expenses.error, add.error, remove.error].filter(Boolean).map((err, index) => <Alert key={index} tone="error">{(err as Error).message}</Alert>)}
 
@@ -87,7 +90,7 @@ export function ExpensesTab({ me, trip }: { me: { id: string }; trip: Trip }) {
                   <span className="muted">{memberName(trip, expense.paidBy)} {t("expense.paid")}, {t("expense.splitWith")} {expense.splitBetween.map((id) => memberName(trip, id)).join(", ")}</span>
                 </div>
                 <span className="expense-amount">{formatMoney(expense.amount, expense.currency)}</span>
-                <button className="icon-button" aria-label={t("common.delete")} disabled={remove.isPending} onClick={() => remove.mutate(expense.ItemId)}><Trash2 size={16} /></button>
+                {canChange(role, expense, me.id) ? <button className="icon-button" aria-label={t("common.delete")} disabled={remove.isPending} onClick={() => remove.mutate(expense.ItemId)}><Trash2 size={16} /></button> : <span />}
               </li>
             ))}
           </ul>

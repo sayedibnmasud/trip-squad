@@ -1,8 +1,12 @@
 import { blocksClient } from "../../lib/blocks/client";
+import { membershipUpdate, withRole, withoutMember } from "./tripRoles";
+import type { AssignableRole } from "./tripRoles";
 
-// Every record below carries the trip's memberIds: the Data Gateway policies
-// ("UserId IN memberIds", see blocks/data/rules.json) can only compare against
-// fields on the row itself, so child records keep their own copy.
+// Data Gateway rules (scripts/build-data-rules.mjs) can only compare against
+// fields on the row itself, so every child record carries copies of its trip's
+// memberIds, editorIds and owner (tripOwnerId). The trip's owner is its
+// CreatedBy; only the owner can change the trip record, so only the owner can
+// change membership or roles.
 type Row = { ItemId: string; CreatedBy?: string; CreatedDate?: string };
 
 export type Trip = Row & {
@@ -15,39 +19,43 @@ export type Trip = Row & {
   endDate?: string;
   memberIds: string[];
   memberNames?: string[];
+  editorIds?: string[] | null;
+  viewerIds?: string[] | null;
   inviteCode?: string;
 };
 
+type Copies = { memberIds: string[]; editorIds?: string[] | null; tripOwnerId?: string | null };
+
 export type SuggestionType = "place" | "food" | "activity";
-export type Suggestion = Row & { tripId: string; title: string; type: SuggestionType; notes?: string; memberIds: string[] };
-export type Vote = Row & { tripId: string; suggestionId: string; value: number; memberIds: string[] };
-export type ItineraryDay = Row & { tripId: string; date: string; items: string[]; memberIds: string[] };
-export type Expense = Row & {
+export type Suggestion = Row & Copies & { tripId: string; title: string; type: SuggestionType; notes?: string };
+export type Vote = Row & Copies & { tripId: string; suggestionId: string; value: number };
+export type ItineraryDay = Row & Copies & { tripId: string; date: string; items: string[] };
+export type Expense = Row & Copies & {
   tripId: string;
   description: string;
   amount: number;
   currency: string;
   paidBy: string;
   splitBetween: string[];
-  memberIds: string[];
 };
 
 const SYSTEM_FIELDS = ["CreatedBy", "CreatedDate"];
+const COPIES = ["memberIds", "editorIds", "tripOwnerId"];
 
 const trips = blocksClient.data.collection<Trip>("Trip", {
-  fields: [...SYSTEM_FIELDS, "name", "destination", "destinationLat", "destinationLng", "address", "startDate", "endDate", "memberIds", "memberNames", "inviteCode"]
+  fields: [...SYSTEM_FIELDS, "name", "destination", "destinationLat", "destinationLng", "address", "startDate", "endDate", "memberIds", "memberNames", "editorIds", "viewerIds", "inviteCode"]
 });
 const suggestions = blocksClient.data.collection<Suggestion>("Suggestion", {
-  fields: [...SYSTEM_FIELDS, "tripId", "title", "type", "notes", "memberIds"]
+  fields: [...SYSTEM_FIELDS, "tripId", "title", "type", "notes", ...COPIES]
 });
 const votes = blocksClient.data.collection<Vote>("Vote", {
-  fields: [...SYSTEM_FIELDS, "tripId", "suggestionId", "value", "memberIds"]
+  fields: [...SYSTEM_FIELDS, "tripId", "suggestionId", "value", ...COPIES]
 });
 const itineraryDays = blocksClient.data.collection<ItineraryDay>("ItineraryDay", {
-  fields: [...SYSTEM_FIELDS, "tripId", "date", "items", "memberIds"]
+  fields: [...SYSTEM_FIELDS, "tripId", "date", "items", ...COPIES]
 });
 const expenses = blocksClient.data.collection<Expense>("Expense", {
-  fields: [...SYSTEM_FIELDS, "tripId", "description", "amount", "currency", "paidBy", "splitBetween", "memberIds"]
+  fields: [...SYSTEM_FIELDS, "tripId", "description", "amount", "currency", "paidBy", "splitBetween", ...COPIES]
 });
 
 type Collection<T> = ReturnType<typeof blocksClient.data.collection<T>>;
@@ -99,38 +107,89 @@ export async function getTrip(tripId: string): Promise<Trip | undefined> {
 }
 
 export type NewTrip = { name: string; destination: string; destinationLat?: number; destinationLng?: number; address?: string; startDate: string; endDate: string };
+export type TripDetails = Partial<Pick<Trip, "name" | "destination" | "destinationLat" | "destinationLng" | "address" | "startDate" | "endDate">>;
 
+// The creator becomes the owner (CreatedBy, set by the Gateway) and is listed
+// as an editor, so one "UserId in editorIds" rule covers owner and editors.
 export async function createTrip(input: NewTrip, me: { id: string; name: string }) {
   return ensureAcknowledged(await trips.create({
     ...input,
     memberIds: [me.id],
     memberNames: [me.name],
+    editorIds: [me.id],
+    viewerIds: [],
     inviteCode: inviteCode()
   }), "insertTrip");
 }
 
-// Adds a member to the trip and copies the new member list onto every child
-// record, so the read/edit policies on those rows admit them too. Runs as an
-// existing member, who is allowed to edit all of them.
-export async function addMember(trip: Trip, member: { id: string; name: string }) {
-  if (trip.memberIds.includes(member.id)) return;
-  const memberIds = [...trip.memberIds, member.id];
-  const memberNames = [...alignedNames(trip), member.name];
-  ensureAcknowledged(await trips.update(trip.ItemId, { memberIds, memberNames }), "updateTrip");
+export async function updateTripDetails(trip: Trip, details: TripDetails) {
+  return ensureAcknowledged(await trips.update(trip.ItemId, details), "updateTrip");
+}
 
-  type Child = { ItemId: string; memberIds: string[] };
-  const children: [Collection<Child>, string][] = [
-    [suggestions, "Suggestion"],
-    [votes, "Vote"],
-    [itineraryDays, "ItineraryDay"],
-    [expenses, "Expense"]
-  ];
-  for (const [collection, schemaName] of children) {
-    const rows = await listAll(collection, schemaName, { tripId: trip.ItemId });
-    for (const row of rows) {
-      ensureAcknowledged(await collection.update(row.ItemId, { memberIds }), `update${schemaName}`);
+type Child = { ItemId: string };
+const CHILDREN: [Collection<Child & Copies>, string][] = [
+  [suggestions, "Suggestion"],
+  [votes, "Vote"],
+  [itineraryDays, "ItineraryDay"],
+  [expenses, "Expense"]
+];
+
+// Rewrites the copied membership fields on every child record. Records from
+// before roles existed lack the copies the owner's edit rights rely on, so a
+// rejected update is counted rather than aborting the whole change.
+async function syncChildren(trip: Trip, next: Trip): Promise<{ skipped: number }> {
+  const copies = membershipUpdate(next);
+  let skipped = 0;
+  for (const [collection, schemaName] of CHILDREN) {
+    for (const row of await listAll(collection, schemaName, { tripId: trip.ItemId })) {
+      try {
+        ensureAcknowledged(await collection.update(row.ItemId, copies), `update${schemaName}`);
+      } catch {
+        skipped += 1;
+      }
     }
   }
+  return { skipped };
+}
+
+async function saveMembership(trip: Trip, change: Pick<Trip, "memberIds"> & Partial<Pick<Trip, "memberNames" | "editorIds" | "viewerIds">>) {
+  const next: Trip = { ...trip, ...change };
+  const editorIds = membershipUpdate(next).editorIds;
+  ensureAcknowledged(await trips.update(trip.ItemId, { ...change, editorIds }), "updateTrip");
+  return syncChildren(trip, { ...next, editorIds });
+}
+
+// Owner only (the Gateway rejects anyone else's Trip update). New members
+// join as contributors.
+export async function addMember(trip: Trip, member: { id: string; name: string }) {
+  if (trip.memberIds.includes(member.id)) return { skipped: 0 };
+  return saveMembership(trip, { memberIds: [...trip.memberIds, member.id], memberNames: [...alignedNames(trip), member.name] });
+}
+
+export async function setMemberRole(trip: Trip, userId: string, role: AssignableRole) {
+  return saveMembership(trip, { memberIds: trip.memberIds, ...withRole(trip, userId, role) });
+}
+
+export async function removeMember(trip: Trip, userId: string) {
+  return saveMembership(trip, withoutMember(trip, userId));
+}
+
+// Deletes the trip's records, then the trip. Child records the owner may not
+// delete (from before roles existed) are left behind; nobody can reach them
+// once the trip is gone.
+export async function deleteTrip(trip: Trip): Promise<{ skipped: number }> {
+  let skipped = 0;
+  for (const [collection, schemaName] of CHILDREN) {
+    for (const row of await listAll(collection, schemaName, { tripId: trip.ItemId })) {
+      try {
+        ensureAcknowledged(await collection.delete(row.ItemId), `delete${schemaName}`);
+      } catch {
+        skipped += 1;
+      }
+    }
+  }
+  ensureAcknowledged(await trips.delete(trip.ItemId), "deleteTrip");
+  return { skipped };
 }
 
 export function alignedNames(trip: Trip): string[] {
@@ -149,7 +208,7 @@ export function listSuggestions(tripId: string) {
 }
 
 export async function addSuggestion(trip: Trip, input: { title: string; type: SuggestionType; notes: string }) {
-  return ensureAcknowledged(await suggestions.create({ ...input, tripId: trip.ItemId, memberIds: trip.memberIds }), "insertSuggestion");
+  return ensureAcknowledged(await suggestions.create({ ...input, tripId: trip.ItemId, ...membershipUpdate(trip) }), "insertSuggestion");
 }
 
 export async function deleteSuggestion(suggestionId: string) {
@@ -169,7 +228,7 @@ export async function castVote(trip: Trip, suggestionId: string, value: 1 | -1, 
   if (existing) {
     return ensureAcknowledged(await votes.update(existing.ItemId, { value }), "updateVote");
   }
-  return ensureAcknowledged(await votes.create({ tripId: trip.ItemId, suggestionId, value, memberIds: trip.memberIds }), "insertVote");
+  return ensureAcknowledged(await votes.create({ tripId: trip.ItemId, suggestionId, value, ...membershipUpdate(trip) }), "insertVote");
 }
 
 // ---- Itinerary ----
@@ -182,7 +241,7 @@ export async function saveItineraryDay(trip: Trip, date: string, items: string[]
   if (existing) {
     return ensureAcknowledged(await itineraryDays.update(existing.ItemId, { items }), "updateItineraryDay");
   }
-  return ensureAcknowledged(await itineraryDays.create({ tripId: trip.ItemId, date, items, memberIds: trip.memberIds }), "insertItineraryDay");
+  return ensureAcknowledged(await itineraryDays.create({ tripId: trip.ItemId, date, items, ...membershipUpdate(trip) }), "insertItineraryDay");
 }
 
 // ---- Expenses ----
@@ -192,7 +251,7 @@ export function listExpenses(tripId: string) {
 }
 
 export async function addExpense(trip: Trip, input: { description: string; amount: number; currency: string; paidBy: string; splitBetween: string[] }) {
-  return ensureAcknowledged(await expenses.create({ ...input, tripId: trip.ItemId, memberIds: trip.memberIds }), "insertExpense");
+  return ensureAcknowledged(await expenses.create({ ...input, tripId: trip.ItemId, ...membershipUpdate(trip) }), "insertExpense");
 }
 
 export async function deleteExpense(expenseId: string) {

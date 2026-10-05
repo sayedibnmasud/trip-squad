@@ -4,15 +4,13 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { navItems } from "./navItems";
 import { NotificationsMenu } from "./NotificationsMenu";
 import { UserMenu } from "./UserMenu";
-import { useMyRoles } from "../../features/admin/usePermission";
 import { useT } from "../../lib/i18n/LocalizationProvider";
 
 // Three destinations don't need a sidebar: a top bar keeps the full width for
 // the trip content itself.
 export function AppShell({ activePath, children, onNavigate }: { activePath: string; children: ReactNode; onNavigate: (path: string) => void }) {
   const { t } = useT();
-  const roles = useMyRoles() ?? [];
-  const visibleItems = navItems.filter((item) => !("role" in item) || roles.includes(item.role));
+  const visibleItems = navItems;
 
   function go(event: React.MouseEvent, href: string) {
     event.preventDefault();

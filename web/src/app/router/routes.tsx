@@ -5,8 +5,8 @@ import { CallbackPage } from "../../features/auth/CallbackPage";
 import { ErrorPage } from "../../features/auth/ErrorPage";
 import { LoginPage } from "../../features/auth/LoginPage";
 import { NotFoundPage } from "../../features/auth/NotFoundPage";
+import { SignupPage } from "../../features/auth/SignupPage";
 import { ProfilePage } from "../../features/profile/ProfilePage";
-import { UsersPage } from "../../features/admin/UsersPage";
 import { ApprovePage, JoinPage } from "../../features/trips/JoinPages";
 import { MyTripsPage } from "../../features/trips/MyTripsPage";
 import { TripPage } from "../../features/trips/TripPage";
@@ -23,7 +23,6 @@ const protectedRoutes: Record<string, (context: RouteContext) => ReactNode> = {
   "/profile": () => <ProfilePage />,
   "/join": ({ navigate, search }) => <JoinPage onNavigate={navigate} search={search} />,
   "/approve": ({ navigate, search }) => <ApprovePage onNavigate={navigate} search={search} />,
-  "/admin/users": () => <UsersPage />,
   "/error": ({ navigate }) => <ErrorPage onNavigate={navigate} />
 };
 
@@ -33,7 +32,7 @@ function resolveRoute(path: string): ((context: RouteContext) => ReactNode) | un
   const tripMatch = TRIP_PATH.exec(path);
   if (tripMatch?.[1]) {
     const tripId = tripMatch[1];
-    return () => <TripPage key={tripId} tripId={tripId} />;
+    return ({ navigate }) => <TripPage key={tripId} tripId={tripId} onNavigate={navigate} />;
   }
   return protectedRoutes[path];
 }
@@ -66,11 +65,19 @@ export function AppRouter() {
     return <CallbackPage onNavigate={navigate} />;
   }
 
+  if (path === "/signup") {
+    return (
+      <RedirectIfAuthenticated onNavigate={navigate}>
+        <SignupPage onNavigate={navigate} />
+      </RedirectIfAuthenticated>
+    );
+  }
+
   if (path === "/login") {
     const returnTo = new URLSearchParams(search).get("returnTo") || undefined;
     return (
       <RedirectIfAuthenticated onNavigate={navigate}>
-        <LoginPage returnTo={returnTo} />
+        <LoginPage returnTo={returnTo} onNavigate={navigate} />
       </RedirectIfAuthenticated>
     );
   }

@@ -85,6 +85,24 @@
       "requiredOn": "None"
     },
     {
+      "name": "editorIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Owner plus members with the Editor role; rules grant them itinerary edits and moderation",
+      "requiredOn": "None"
+    },
+    {
+      "name": "viewerIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Members with the Viewer role (read-only)",
+      "requiredOn": "None"
+    },
+    {
       "name": "inviteCode",
       "type": "String",
       "isArray": false,

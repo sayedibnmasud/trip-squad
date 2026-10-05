@@ -19,7 +19,7 @@ import { placeAt } from "./geocoding";
 import type { Place } from "./geocoding";
 import { tripDays } from "./itinerary";
 import type { LatLng } from "./TripMap";
-import { alignedNames, createTrip, listMyTrips } from "./tripsApi";
+import { alignedNames, createTrip, listMyTrips, updateTripDetails } from "./tripsApi";
 import type { Trip } from "./tripsApi";
 import { useMe } from "./useMe";
 
@@ -67,7 +67,7 @@ export function MyTripsPage({ onNavigate }: { onNavigate: (path: string) => void
       ) : null}
 
       <Dialog open={creating} onOpenChange={setCreating}>
-        {creating ? <CreateTripDialog onClose={() => setCreating(false)} onCreated={(id) => onNavigate(`/trips/${id}`)} /> : null}
+        {creating ? <TripFormDialog onClose={() => setCreating(false)} onSaved={(id) => onNavigate(`/trips/${id}`)} /> : null}
       </Dialog>
     </section>
   );
@@ -130,18 +130,21 @@ function celebrate() {
   void confetti({ particleCount: 90, spread: 75, startVelocity: 42, origin: { y: 0.7 }, colors, zIndex: 9999 });
 }
 
-function CreateTripDialog({ onClose, onCreated }: { onClose: () => void; onCreated: (tripId: string) => void }) {
+// Creates a trip, or (with `trip`) edits its details. Editing is owner-only;
+// the Gateway rejects anyone else's update.
+export function TripFormDialog({ onClose, onSaved, trip }: { onClose: () => void; onSaved: (tripId: string) => void; trip?: Trip }) {
   const { language, t } = useT();
   const me = useMe();
   const queryClient = useQueryClient();
   const lang = language.split("-")[0] || "en";
-  const [name, setName] = useState("");
-  const [dates, setDates] = useState<DayRange>({});
-  const [destination, setDestination] = useState<Destination | undefined>();
+  const initial = trip ? fromTrip(trip) : undefined;
+  const [name, setName] = useState(trip?.name ?? "");
+  const [dates, setDates] = useState<DayRange>(initial?.dates ?? {});
+  const [destination, setDestination] = useState<Destination | undefined>(initial?.destination);
   const [destinationQuery, setDestinationQuery] = useState("");
-  const [pin, setPin] = useState<LatLng | undefined>();
-  const [zoom, setZoom] = useState(10);
-  const [address, setAddress] = useState("");
+  const [pin, setPin] = useState<LatLng | undefined>(initial?.pin);
+  const [zoom, setZoom] = useState(trip?.address ? 15 : 10);
+  const [address, setAddress] = useState(trip?.address ?? "");
   const [lookupError, setLookupError] = useState<string | undefined>();
 
   // Picking a destination moves the pin there; an address belonged to the
@@ -178,20 +181,30 @@ function CreateTripDialog({ onClose, onCreated }: { onClose: () => void; onCreat
   }
 
   const create = useMutation({
-    mutationFn: () => createTrip({
-      name: name.trim(),
-      destination: destination!.region ? `${destination!.name}, ${destination!.region}` : destination!.name,
-      destinationLat: pin?.lat,
-      destinationLng: pin?.lng,
-      address: address.trim() || undefined,
-      startDate: toIsoDate(dates.from!),
-      endDate: toIsoDate(dates.to ?? dates.from!)
-    }, me!),
+    mutationFn: async () => {
+      const details = {
+        name: name.trim(),
+        destination: destination!.region ? `${destination!.name}, ${destination!.region}` : destination!.name,
+        destinationLat: pin?.lat,
+        destinationLng: pin?.lng,
+        address: address.trim() || undefined,
+        startDate: toIsoDate(dates.from!),
+        endDate: toIsoDate(dates.to ?? dates.from!)
+      };
+      if (trip) {
+        await updateTripDetails(trip, { ...details, destinationLat: pin?.lat ?? null, destinationLng: pin?.lng ?? null, address: details.address ?? "" });
+        return trip.ItemId;
+      }
+      return createTrip(details, me!);
+    },
     onSuccess: async (tripId) => {
-      celebrate();
-      await queryClient.invalidateQueries({ queryKey: ["trips"] });
+      if (!trip) celebrate();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["trips"] }),
+        trip ? queryClient.invalidateQueries({ queryKey: ["trip", trip.ItemId] }) : Promise.resolve()
+      ]);
       onClose();
-      if (tripId) onCreated(tripId);
+      if (tripId) onSaved(tripId);
     }
   });
 
@@ -203,7 +216,7 @@ function CreateTripDialog({ onClose, onCreated }: { onClose: () => void; onCreat
   const valid = Boolean(name.trim() && destination && dates.from);
 
   return (
-    <DialogContent title={t("trips.new")} description={t("trips.newHint")} className="max-w-[960px]">
+    <DialogContent title={trip ? t("trip.edit") : t("trips.new")} description={trip ? t("trip.editHint") : t("trips.newHint")} className="max-w-[960px]">
       <form className="trip-form" onSubmit={submit}>
         <div className="grid content-start gap-4">
           <div className="grid gap-1.5">
@@ -226,7 +239,7 @@ function CreateTripDialog({ onClose, onCreated }: { onClose: () => void; onCreat
           {create.isError ? <Alert tone="error">{(create.error as Error).message}</Alert> : null}
           <div className="mt-1 flex justify-end gap-2.5">
             <Button type="button" variant="outline" onClick={onClose}>{t("common.cancel")}</Button>
-            <Button type="submit" disabled={!valid || !me || create.isPending}>{t("trips.create")}</Button>
+            <Button type="submit" disabled={!valid || !me || create.isPending}>{trip ? t("common.save") : t("trips.create")}</Button>
           </div>
         </div>
         <Suspense fallback={<div className="picker-map skeleton" />}>
@@ -243,6 +256,17 @@ function CreateTripDialog({ onClose, onCreated }: { onClose: () => void; onCreat
       </form>
     </DialogContent>
   );
+}
+
+// Splits the stored "Name, Region" back into the picker's shape.
+function fromTrip(trip: Trip): { dates: DayRange; destination: Destination; pin?: LatLng } {
+  const [name = trip.destination, ...rest] = trip.destination.split(",").map((part) => part.trim());
+  const pin = typeof trip.destinationLat === "number" && typeof trip.destinationLng === "number" ? { lat: trip.destinationLat, lng: trip.destinationLng } : undefined;
+  return {
+    dates: { from: trip.startDate?.slice(0, 10), to: trip.endDate?.slice(0, 10) },
+    destination: { name, region: rest.join(", ") },
+    pin
+  };
 }
 
 function initials(name: string): string {

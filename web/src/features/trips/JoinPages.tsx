@@ -5,12 +5,13 @@ import { ActionButton } from "../../shared/ui/ActionButton";
 import { Alert } from "../../shared/ui/Alert";
 import { PageHeader } from "../../shared/ui/PageHeader";
 import { CopyField } from "./MembersTab";
+import { can, roleOf } from "./tripRoles";
 import { addMember, getTrip } from "./tripsApi";
 import { useMe } from "./useMe";
 
 // Joining is a two-link handshake that stays inside the row-level policies:
-// a non-member cannot read or edit a trip, so the invitee sends a request
-// link back, and an existing member (who can edit) adds them.
+// a non-member cannot read a trip, so the invitee sends a request link back,
+// and the trip's owner (the only one who can change membership) adds them.
 
 export function JoinPage({ onNavigate, search }: { onNavigate: (path: string) => void; search: string }) {
   const { t } = useT();
@@ -47,6 +48,7 @@ export function JoinPage({ onNavigate, search }: { onNavigate: (path: string) =>
 
 export function ApprovePage({ onNavigate, search }: { onNavigate: (path: string) => void; search: string }) {
   const { t } = useT();
+  const me = useMe();
   const queryClient = useQueryClient();
   const params = new URLSearchParams(search);
   const tripId = params.get("trip") ?? "";
@@ -68,6 +70,7 @@ export function ApprovePage({ onNavigate, search }: { onNavigate: (path: string)
   if (!trip.data) return <Alert tone="error">{t("trip.notFound")}</Alert>;
 
   const codeMatches = trip.data.inviteCode === code;
+  const isOwner = can(roleOf(trip.data, me?.id), "manageMembers");
   const alreadyMember = trip.data.memberIds.includes(user);
 
   return (
@@ -76,13 +79,14 @@ export function ApprovePage({ onNavigate, search }: { onNavigate: (path: string)
       <div className="panel">
         <p><strong>{name}</strong></p>
         {!codeMatches ? <Alert tone="error">{t("approve.badCode")}</Alert> : null}
+        {!isOwner && !alreadyMember ? <Alert tone="warn">{t("approve.ownerOnly")}</Alert> : null}
         {alreadyMember || approve.isSuccess ? <Alert tone="info">{t("approve.done")}</Alert> : null}
         {approve.isError ? <Alert tone="error">{(approve.error as Error).message}</Alert> : null}
         <div className="form-actions">
           {alreadyMember || approve.isSuccess ? (
             <ActionButton onClick={() => onNavigate(`/trips/${tripId}`)}>{t("join.open")}</ActionButton>
           ) : (
-            <ActionButton icon={<UserPlus size={16} />} disabled={!codeMatches || approve.isPending} onClick={() => approve.mutate()}>{t("approve.confirm")}</ActionButton>
+            <ActionButton icon={<UserPlus size={16} />} disabled={!codeMatches || !isOwner || approve.isPending} onClick={() => approve.mutate()}>{t("approve.confirm")}</ActionButton>
           )}
         </div>
       </div>
