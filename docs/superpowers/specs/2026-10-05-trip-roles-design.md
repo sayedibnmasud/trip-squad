@@ -27,11 +27,10 @@ Trip details (name, dates, destination, address) are **owner-only**, a deliberat
 
 ## Data model
 
-Trip gains:
+The owner is the trip's platform-managed `CreatedBy` (set by Blocks on insert, never editable), so no `ownerId` field is needed and ownership cannot be tampered with. Trip gains:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `ownerId` | String | IAM user id of the owner |
 | `editorIds` | String[] | Owner **plus** editors (the owner is always included, so one rule covers both) |
 | `viewerIds` | String[] | Viewers |
 
@@ -42,7 +41,7 @@ Suggestion, Vote, ItineraryDay and Expense each gain copies of the fields their 
 | Field | Type | Meaning |
 |---|---|---|
 | `editorIds` | String[] | Copy of the trip's `editorIds` |
-| `tripOwnerId` | String | Copy of the trip's `ownerId` |
+| `tripOwnerId` | String | Copy of the trip's `CreatedBy` |
 
 They keep `memberIds`. Whenever membership or roles change, the owner's client rewrites these copies on every child record (as `addMember` already does for `memberIds`).
 
@@ -52,7 +51,7 @@ Read is Custom on every schema; Create stays "any signed-in user" (the Gateway c
 
 | Schema | Read | Edit / Delete |
 |---|---|---|
-| Trip | `UserId IN memberIds` | `UserId = ownerId` |
+| Trip | `UserId IN memberIds` | `UserId = CreatedBy` |
 | ItineraryDay | `UserId IN memberIds` | `UserId IN editorIds` |
 | Suggestion | `UserId IN memberIds` | `UserId = CreatedBy` OR `UserId IN editorIds` |
 | Expense | `UserId IN memberIds` | `UserId = CreatedBy` OR `UserId IN editorIds` |
@@ -67,7 +66,7 @@ The admin "read and delete any trip" rule is removed.
 ## App changes
 
 - **Roles helper** (pure, unit-tested): `roleOf(trip, userId)` → `owner | editor | contributor | viewer | none`, plus capability checks (`canEditTrip`, `canEditItinerary`, `canContribute`, `canModerate(row)`).
-- **Create trip**: sets `ownerId = me`, `editorIds = [me]`, `viewerIds = []`.
+- **Create trip**: sets `editorIds = [me]`, `viewerIds = []` (the owner is `CreatedBy`). A trip without `editorIds` (created before this change) treats its creator as owner and editor.
 - **Members tab**: lists members with their role; the owner gets a per-member role menu (Editor / Contributor / Viewer) and Remove. Changing a role or removing someone rewrites the trip and the child copies.
 - **Join flow**: anyone in the trip can share the invite link; only the **owner** can approve a request (the approve page says so to non-owners).
 - **Gating in tabs**: the itinerary editor and "Arrange days" show for Editors and the owner; suggest/vote/expense forms show for Contributors and above; delete/edit buttons follow `canModerate`. Viewers see read-only views.
@@ -83,13 +82,7 @@ The admin "read and delete any trip" rule is removed.
 
 ## Existing trips
 
-The existing trips are test data and will be **deleted rather than migrated**. The CLI has no record-level data commands, and only members can delete trip data, so deletion goes through the app:
-
-1. Ship the new fields and the owner's **Delete trip** (which removes the trip's suggestions, votes, itinerary days and expenses) while the **current** rules are still deployed, since they let any member delete.
-2. The user deletes the test trips in the app.
-3. Deploy the new rules.
-
-No migration code is written.
+The existing trips are test data and will be deleted, not migrated. Because ownership is `CreatedBy`, they keep working under the new rules: their creator is their owner, and can delete them with **Delete trip**. Their child records lack the copied fields, so only each record's author can still edit it; Delete trip skips child records it isn't allowed to remove rather than failing. The CLI has no record-level data commands, so the deletion itself is done by the user in the app.
 
 ## Delivery
 
