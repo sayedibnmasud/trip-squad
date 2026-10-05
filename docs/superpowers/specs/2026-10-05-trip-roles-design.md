@@ -81,14 +81,15 @@ The admin "read and delete any trip" rule is removed.
 - The `tripsquad-admin` role is left defined but unassigned, with its permissions removed. The CLI has no role delete.
 - The login page links to sign-up if the hosted login page doesn't already offer it once sign-up is enabled. To be verified.
 
-## Migration of existing trips
+## Existing trips
 
-Existing trips (if any) have no `ownerId`, and would lock their owner out under the new rules. So:
+The existing trips are test data and will be **deleted rather than migrated**. The CLI has no record-level data commands, and only members can delete trip data, so deletion goes through the app:
 
-1. **Phase 1:** push the new fields and ship code that writes them. When a trip's creator opens a trip without `ownerId`, the app fills `ownerId = CreatedBy`, `editorIds = [CreatedBy]`, `viewerIds = []` and propagates the copies. This works because the old rules still let members edit.
-2. **Phase 2:** once every existing trip is migrated, or deleted if they're only test data, deploy the new rules.
+1. Ship the new fields and the owner's **Delete trip** (which removes the trip's suggestions, votes, itinerary days and expenses) while the **current** rules are still deployed, since they let any member delete.
+2. The user deletes the test trips in the app.
+3. Deploy the new rules.
 
-If no trips exist, the two phases collapse into one.
+No migration code is written.
 
 ## Delivery
 
