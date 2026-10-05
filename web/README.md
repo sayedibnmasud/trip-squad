@@ -23,18 +23,19 @@ This app signs users in directly against this project's tenant (no CLI-style acc
 
 Then set `VITE_BLOCKS_OIDC_CLIENT_ID` in `.env` to the new client's id. Until then, the login page shows a setup notice instead of failing silently.
 
-## Testing login locally over HTTPS on the real project domain
+## Running locally (no hosts-file changes)
 
-Blocks SSO sets a **Secure, domain-scoped** session-related cookie as part of the OIDC exchange; browsers refuse to store or send that on plain `http://localhost`. To test the real login flow locally, run the dev server on the project's actual domain over HTTPS instead of `localhost`:
+Blocks' hosted login sets a **Secure** session cookie scoped to the project's cookie domain, so the browser has to see the app and the API as one HTTPS site. Local dev does that with Vite's dev-server proxy: the app runs on `https://localhost:5173`, and every Blocks API call goes to `https://localhost:5173/blocks-api/…`, which Vite forwards to `VITE_BLOCKS_API_URL` (see `vite.config.ts`). Cookies come back as localhost cookies. The project's real domain is never remapped, so it always reaches the deployed app.
 
-1. Find the app's registered Blocks domain in the Blocks OS project settings, or ask whoever created the project. It must match the OIDC redirect URI's host.
-2. Point it at your machine — add to your hosts file (`/etc/hosts`, or `C:\Windows\System32\drivers\etc\hosts` as Administrator): `127.0.0.1  <domain>`.
-3. Confirm `.env` has `VITE_BLOCKS_DEV_HOST=<domain>` (generated from `--app-domain`) and `VITE_BLOCKS_DEV_PORT=5173`.
-4. Generate a local HTTPS cert for that exact domain: `npm run cert`. Trust it in your OS store to remove the browser warning (command printed by the script), then restart the browser.
-5. `npm run dev` -> open `https://<domain>:<port>` (not `localhost`).
-6. Register that exact origin's `/login/callback` as a redirect URI on the OIDC client — byte-for-byte, including the port.
+1. `.env` needs `VITE_BLOCKS_DEV_HOST=localhost`, `VITE_BLOCKS_DEV_PORT=5173` and `VITE_BLOCKS_DEV_PROXY=true` (see `.env.example`).
+2. `npm run cert` once, and trust `.cert/dev-cert.pem` in your OS store (the script prints the command). The cert's SAN includes `localhost`.
+3. `npm run dev`, then open `https://localhost:5173`.
 
-`.cert/` is gitignored — each developer generates and trusts their own cert.
+`https://localhost:5173/login/callback` must be registered on the OIDC client (it is, for this project). The port is part of it, so keep 5173: `strictPort` is on.
+
+The proxy is dev-only. Production builds call the API directly, and `.env.<environment>` (e.g. `.env.dev`) holds the deployed settings.
+
+`.cert/` is gitignored, so each developer generates and trusts their own cert.
 
 ## Blocks Release deployment
 

@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_BLOCKS_X_BLOCKS_KEY: string;
   readonly VITE_BLOCKS_DEV_HOST?: string;
   readonly VITE_BLOCKS_DEV_PORT?: string;
+  readonly VITE_BLOCKS_DEV_PROXY?: string;
 }
 
 interface ImportMeta {
