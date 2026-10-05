@@ -1,0 +1,97 @@
+{
+  "schemaName": "Trip",
+  "collectionName": "blx_Trips",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "name",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Trip name",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "destination",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Destination",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "destinationLat",
+      "type": "Float",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Latitude of the destination picked on the map",
+      "requiredOn": "None"
+    },
+    {
+      "name": "destinationLng",
+      "type": "Float",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Longitude of the destination picked on the map",
+      "requiredOn": "None"
+    },
+    {
+      "name": "address",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Specific address for the trip (hotel, meeting point), chosen with autocomplete or the map",
+      "requiredOn": "None"
+    },
+    {
+      "name": "startDate",
+      "type": "DateTime",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "First day of the trip",
+      "requiredOn": "None"
+    },
+    {
+      "name": "endDate",
+      "type": "DateTime",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Last day of the trip",
+      "requiredOn": "None"
+    },
+    {
+      "name": "memberIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids of the trip's members. Row-level policies grant access only to these users.",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "memberNames",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Display names, index-aligned with memberIds",
+      "requiredOn": "None"
+    },
+    {
+      "name": "inviteCode",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Random code embedded in the invite link; checked server-side when someone joins",
+      "requiredOn": "None"
+    }
+  ]
+}

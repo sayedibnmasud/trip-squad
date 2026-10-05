@@ -1,0 +1,327 @@
+{
+  "page": {
+    "body": {
+      "container": {
+        "style": {
+          "background-color": "#F1F5F9"
+        }
+      },
+      "content": {
+        "computedStyle": {
+          "linkColor": "#124191",
+          "messageBackgroundColor": "#F1F5F9",
+          "messageWidth": "600px"
+        },
+        "style": {
+          "color": "#0F172A",
+          "font-family": "'DM Sans', Arial, Helvetica Neue, Helvetica, sans-serif"
+        }
+      },
+      "type": "mailup-bee-page-properties",
+      "webFonts": [
+        {
+          "fontFamily": "'DM Sans', sans-serif",
+          "url": "https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap",
+          "weights": "400,700"
+        }
+      ]
+    },
+    "description": "",
+    "rows": [
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "0px",
+                    "padding-left": "40px",
+                    "padding-right": "40px",
+                    "padding-top": "28px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#124191"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0;font-size:16px;line-height:29px;color:#0F172A;font-weight:700;\"><span style=\"display:inline-block;background:#124191;color:#FFFFFF;font-size:13px;line-height:13px;padding:8px 10px;border-radius:6px;\">TS</span>&nbsp;Trip Squad</p></div>",
+                    "style": {
+                      "color": "#475569",
+                      "font-family": "inherit",
+                      "line-height": "150%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "b1c1a001-0001-4a1a-9a01-000000000005"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "padding-bottom": "0px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "0px"
+            },
+            "uuid": "b1c1a001-0001-4a1a-9a01-000000000003"
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "#FFFFFF",
+            "border": "1px solid #E2E8F0",
+            "border-bottom": "none",
+            "border-radius": "16px 16px 0 0",
+            "box-shadow": "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)",
+            "color": "#000000",
+            "overflow": "hidden",
+            "width": "600px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty",
+        "uuid": "b1c1a001-0001-4a1a-9a01-000000000004"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "24px",
+                    "padding-left": "40px",
+                    "padding-right": "40px",
+                    "padding-top": "32px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#124191"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0 0 16px 0;font-size:28px;line-height:34px;color:#0F172A;font-weight:800;\">You're invited to Trip Squad</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">Hi there,</p><p style=\"margin:0 0 12px 0;font-size:16px;line-height:25px;color:#334155;\">An account has been created for you on Trip Squad, where your group plans trips together: suggest places and vote on them, build a day-by-day itinerary, and keep track of who paid for what.</p><p style=\"margin:0;font-size:16px;line-height:25px;color:#334155;\">Activate your account and choose a password to get started.</p></div>",
+                    "style": {
+                      "color": "#475569",
+                      "font-family": "inherit",
+                      "line-height": "150%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "b1c1a001-0001-4a1a-9a01-000000000005"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "{{AccountActivationUrl}}",
+                    "label": "<div class=\"txtTinyMce-wrapper\"><p style=\"word-break:break-word;\">Activate your account</p></div>",
+                    "style": {
+                      "background-color": "#124191",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "border-radius": "8px",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "700",
+                      "line-height": "100%",
+                      "max-width": "100%",
+                      "padding-bottom": "14px",
+                      "padding-left": "28px",
+                      "padding-right": "28px",
+                      "padding-top": "14px",
+                      "width": "auto"
+                    },
+                    "target": "_self"
+                  },
+                  "computedStyle": {
+                    "height": 40,
+                    "hideContentOnMobile": false,
+                    "width": 170
+                  },
+                  "style": {
+                    "padding-bottom": "28px",
+                    "padding-left": "40px",
+                    "padding-right": "40px",
+                    "padding-top": "0px",
+                    "text-align": "left"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button",
+                "uuid": "b1c1a001-0001-4a1a-9a01-000000000006"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "16px",
+                    "padding-left": "40px",
+                    "padding-right": "40px",
+                    "padding-top": "0px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#124191"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0 0 24px 0;font-size:13px;line-height:19px;color:#64748B;\">This link expires in 24 hours.</p><p style=\"margin:0 0 6px 0;font-size:13px;line-height:19px;color:#64748B;\">If the button doesn't work, copy this link into your browser:</p><p dir=\"ltr\" style=\"margin:0;font-size:12px;line-height:18px;word-break:break-all;\"><a href=\"{{AccountActivationUrl}}\" target=\"_blank\" style=\"text-decoration:underline;color:#124191;\">{{AccountActivationUrl}}</a></p></div>",
+                    "style": {
+                      "color": "#64748B",
+                      "font-family": "inherit",
+                      "line-height": "150%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "b1c1a001-0001-4a1a-9a01-000000000007"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "padding-bottom": "0px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "0px"
+            },
+            "uuid": "b1c1a001-0001-4a1a-9a01-000000000008"
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "#FFFFFF",
+            "border-left": "1px solid #E2E8F0",
+            "border-right": "1px solid #E2E8F0",
+            "box-shadow": "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)",
+            "color": "#000000",
+            "width": "600px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty",
+        "uuid": "b1c1a001-0001-4a1a-9a01-000000000009"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "24px",
+                    "padding-left": "40px",
+                    "padding-right": "40px",
+                    "padding-top": "20px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#124191"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-family:inherit;\"><p style=\"margin:0;font-size:12px;line-height:18px;color:#94A3B8;\">You're receiving this because a Trip Squad admin invited this email address. If you weren't expecting it, you can ignore this email and no account will be activated.</p></div>",
+                    "style": {
+                      "color": "#262626",
+                      "font-family": "inherit",
+                      "line-height": "150%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text",
+                "uuid": "b1c1a001-0001-4a1a-9a01-00000000000a"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "padding-bottom": "0px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "0px"
+            },
+            "uuid": "b1c1a001-0001-4a1a-9a01-00000000000b"
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "#FFFFFF",
+            "border": "1px solid #E2E8F0",
+            "border-top": "1px solid #E2E8F0",
+            "border-radius": "0 0 16px 16px",
+            "box-shadow": "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)",
+            "color": "#000000",
+            "width": "600px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "two-columns-4-8-empty",
+        "uuid": "b1c1a001-0001-4a1a-9a01-00000000000e"
+      }
+    ],
+    "template": {
+      "name": "template-base",
+      "type": "basic",
+      "version": "2.0.0"
+    },
+    "title": ""
+  },
+  "comments": {}
+}

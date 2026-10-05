@@ -1,0 +1,43 @@
+{
+  "schemaName": "Vote",
+  "collectionName": "blx_Votes",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "tripId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Parent Trip ItemId",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "suggestionId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Suggestion being voted on",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "value",
+      "type": "Int",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "+1 or -1",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "memberIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids of the trip's members. Copied from the parent Trip so row-level policies can check membership on this record.",
+      "requiredOn": "Insert"
+    }
+  ]
+}

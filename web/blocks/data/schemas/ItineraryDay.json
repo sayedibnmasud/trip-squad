@@ -1,0 +1,43 @@
+{
+  "schemaName": "ItineraryDay",
+  "collectionName": "blx_ItineraryDays",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "tripId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Parent Trip ItemId",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "date",
+      "type": "DateTime",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Calendar day",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "items",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Ordered plan lines for the day",
+      "requiredOn": "None"
+    },
+    {
+      "name": "memberIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids of the trip's members. Copied from the parent Trip so row-level policies can check membership on this record.",
+      "requiredOn": "Insert"
+    }
+  ]
+}

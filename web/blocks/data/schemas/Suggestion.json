@@ -1,0 +1,52 @@
+{
+  "schemaName": "Suggestion",
+  "collectionName": "blx_Suggestions",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "tripId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Parent Trip ItemId",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "title",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Place, food spot or activity",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "type",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "place, food or activity",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "notes",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Optional notes",
+      "requiredOn": "None"
+    },
+    {
+      "name": "memberIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids of the trip's members. Copied from the parent Trip so row-level policies can check membership on this record.",
+      "requiredOn": "Insert"
+    }
+  ]
+}

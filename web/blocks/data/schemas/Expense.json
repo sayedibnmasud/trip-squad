@@ -1,0 +1,70 @@
+{
+  "schemaName": "Expense",
+  "collectionName": "blx_Expenses",
+  "schemaType": 1,
+  "fields": [
+    {
+      "name": "tripId",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Parent Trip ItemId",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "description",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "What was paid for",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "amount",
+      "type": "Float",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "Amount paid",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "currency",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "ISO currency code, e.g. BDT",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "paidBy",
+      "type": "String",
+      "isArray": false,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user id of the payer",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "splitBetween",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids sharing this expense",
+      "requiredOn": "Insert"
+    },
+    {
+      "name": "memberIds",
+      "type": "String",
+      "isArray": true,
+      "isPIIData": false,
+      "isUniqueData": false,
+      "description": "IAM user ids of the trip's members. Copied from the parent Trip so row-level policies can check membership on this record.",
+      "requiredOn": "Insert"
+    }
+  ]
+}

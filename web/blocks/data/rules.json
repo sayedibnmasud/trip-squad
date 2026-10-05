@@ -1,0 +1,636 @@
+{
+  "policies": [
+    {
+      "schemaName": "Trip",
+      "policyName": "members-can-read",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can read Trip records",
+      "policyType": 0,
+      "operation": 0,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Trip",
+      "policyName": "members-can-edit",
+      "policyDescription": "Only users listed in memberIds can edit Trip records",
+      "policyType": 0,
+      "operation": 2,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 0,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Trip",
+      "policyName": "members-can-delete",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can delete Trip records",
+      "policyType": 0,
+      "operation": 3,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Suggestion",
+      "policyName": "members-can-read",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can read Suggestion records",
+      "policyType": 0,
+      "operation": 0,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Suggestion",
+      "policyName": "members-can-edit",
+      "policyDescription": "Only users listed in memberIds can edit Suggestion records",
+      "policyType": 0,
+      "operation": 2,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 0,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Suggestion",
+      "policyName": "members-can-delete",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can delete Suggestion records",
+      "policyType": 0,
+      "operation": 3,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Vote",
+      "policyName": "members-can-read",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can read Vote records",
+      "policyType": 0,
+      "operation": 0,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Vote",
+      "policyName": "members-can-edit",
+      "policyDescription": "Only users listed in memberIds can edit Vote records",
+      "policyType": 0,
+      "operation": 2,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 0,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Vote",
+      "policyName": "members-can-delete",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can delete Vote records",
+      "policyType": 0,
+      "operation": 3,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "ItineraryDay",
+      "policyName": "members-can-read",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can read ItineraryDay records",
+      "policyType": 0,
+      "operation": 0,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "ItineraryDay",
+      "policyName": "members-can-edit",
+      "policyDescription": "Only users listed in memberIds can edit ItineraryDay records",
+      "policyType": 0,
+      "operation": 2,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 0,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "ItineraryDay",
+      "policyName": "members-can-delete",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can delete ItineraryDay records",
+      "policyType": 0,
+      "operation": 3,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Expense",
+      "policyName": "members-can-read",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can read Expense records",
+      "policyType": 0,
+      "operation": 0,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Expense",
+      "policyName": "members-can-edit",
+      "policyDescription": "Only users listed in memberIds can edit Expense records",
+      "policyType": 0,
+      "operation": 2,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 0,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    },
+    {
+      "schemaName": "Expense",
+      "policyName": "members-can-delete",
+      "policyDescription": "Members (UserId in memberIds) or Trip Squad admins can delete Expense records",
+      "policyType": 0,
+      "operation": 3,
+      "fieldNames": [],
+      "ruleGroup": {
+        "logicalOperator": 1,
+        "rules": [
+          {
+            "leftSource": 0,
+            "leftOperand": "UserId",
+            "operator": 8,
+            "rightSource": 1,
+            "rightOperand": "memberIds",
+            "rightOperands": [],
+            "staticValue": null,
+            "description": "Current user is a member"
+          },
+          {
+            "leftSource": 0,
+            "leftOperand": "Roles",
+            "operator": 6,
+            "rightSource": 2,
+            "rightOperand": "",
+            "rightOperands": [],
+            "staticValue": "tripsquad-admin",
+            "description": "Current user is a Trip Squad admin"
+          }
+        ],
+        "nestedGroups": []
+      },
+      "priority": 0,
+      "isAllowPolicy": true
+    }
+  ],
+  "security": [
+    {
+      "schemaId": "3fad1194-9284-4b67-b044-305fb3467bf3",
+      "operation": 0,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "3fad1194-9284-4b67-b044-305fb3467bf3",
+      "operation": 1,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 1
+    },
+    {
+      "schemaId": "3fad1194-9284-4b67-b044-305fb3467bf3",
+      "operation": 2,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "3fad1194-9284-4b67-b044-305fb3467bf3",
+      "operation": 3,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "1a61f7e6-5a61-443c-9fab-da692cadb5a6",
+      "operation": 0,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "1a61f7e6-5a61-443c-9fab-da692cadb5a6",
+      "operation": 1,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 1
+    },
+    {
+      "schemaId": "1a61f7e6-5a61-443c-9fab-da692cadb5a6",
+      "operation": 2,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "1a61f7e6-5a61-443c-9fab-da692cadb5a6",
+      "operation": 3,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "08ad336f-5a5f-4b2d-8e47-dd7feb8c7789",
+      "operation": 0,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "08ad336f-5a5f-4b2d-8e47-dd7feb8c7789",
+      "operation": 1,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 1
+    },
+    {
+      "schemaId": "08ad336f-5a5f-4b2d-8e47-dd7feb8c7789",
+      "operation": 2,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "08ad336f-5a5f-4b2d-8e47-dd7feb8c7789",
+      "operation": 3,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "b0b310ba-f90e-4fe8-b4c5-61acfdd05ffb",
+      "operation": 0,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "b0b310ba-f90e-4fe8-b4c5-61acfdd05ffb",
+      "operation": 1,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 1
+    },
+    {
+      "schemaId": "b0b310ba-f90e-4fe8-b4c5-61acfdd05ffb",
+      "operation": 2,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "b0b310ba-f90e-4fe8-b4c5-61acfdd05ffb",
+      "operation": 3,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "a3dd3b16-ee8c-4203-82c1-40735e1a02fd",
+      "operation": 0,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "a3dd3b16-ee8c-4203-82c1-40735e1a02fd",
+      "operation": 1,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 1
+    },
+    {
+      "schemaId": "a3dd3b16-ee8c-4203-82c1-40735e1a02fd",
+      "operation": 2,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    },
+    {
+      "schemaId": "a3dd3b16-ee8c-4203-82c1-40735e1a02fd",
+      "operation": 3,
+      "policyType": 0,
+      "fieldNames": [],
+      "accessLevel": 3
+    }
+  ]
+}
