@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { AppShell } from "../layout/AppShell";
 import { RedirectIfAuthenticated, RequireAuth } from "./guards";
-import { CallbackPage } from "../../features/auth/CallbackPage";
 import { ErrorPage } from "../../features/auth/ErrorPage";
+import { ForgotPasswordPage } from "../../features/auth/ForgotPasswordPage";
 import { LoginPage } from "../../features/auth/LoginPage";
 import { NotFoundPage } from "../../features/auth/NotFoundPage";
+import { SetPasswordPage } from "../../features/auth/SetPasswordPage";
 import { SignupPage } from "../../features/auth/SignupPage";
 import { ProfilePage } from "../../features/profile/ProfilePage";
 import { ApprovePage, JoinPage } from "../../features/trips/JoinPages";
 import { MyTripsPage } from "../../features/trips/MyTripsPage";
+import { linkCode } from "../../lib/blocks/auth";
 import { TripPage } from "../../features/trips/TripPage";
 import { lazy, Suspense } from "react";
 import type { ReactNode } from "react";
@@ -27,6 +29,12 @@ const protectedRoutes: Record<string, (context: RouteContext) => ReactNode> = {
 };
 
 const TRIP_PATH = /^\/trips\/([A-Za-z0-9-]+)$/;
+
+// Only same-app paths may be a post-login destination, so a crafted
+// ?returnTo= can't bounce someone off to another site.
+function safeReturnTo(raw: string | null): string {
+  return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+}
 
 function resolveRoute(path: string): ((context: RouteContext) => ReactNode) | undefined {
   const tripMatch = TRIP_PATH.exec(path);
@@ -61,8 +69,25 @@ export function AppRouter() {
     return <Suspense fallback={null}><DesignPreview path={path} /></Suspense>;
   }
 
-  if (path === "/login/callback") {
-    return <CallbackPage onNavigate={navigate} />;
+  // Emailed links from IAM (account activation, password reset) land on
+  // these pages; nothing in sign-in ever leaves the app.
+  // IAM's activation path is fixed at oidc/activate/ (the auth config
+  // doesn't let it be changed), so that is the path its emails use.
+  const activateBase = ["/activate", "/oidc/activate"].find((base) => path === base || path.startsWith(`${base}/`));
+  if (activateBase) {
+    return <SetPasswordPage mode="activate" code={linkCode(path, search, activateBase)} onNavigate={navigate} />;
+  }
+
+  if (path === "/reset-password" || path.startsWith("/reset-password/")) {
+    return <SetPasswordPage mode="reset" code={linkCode(path, search, "/reset-password")} onNavigate={navigate} />;
+  }
+
+  if (path === "/forgot-password") {
+    return (
+      <RedirectIfAuthenticated onNavigate={navigate}>
+        <ForgotPasswordPage onNavigate={navigate} />
+      </RedirectIfAuthenticated>
+    );
   }
 
   if (path === "/signup") {
@@ -73,11 +98,13 @@ export function AppRouter() {
     );
   }
 
-  if (path === "/login") {
-    const returnTo = new URLSearchParams(search).get("returnTo") || undefined;
+  // /login/callback was the hosted-login return address; sign-up still
+  // names it as its redirectUri, so treat it as the login page.
+  if (path === "/login" || path === "/login/callback") {
+    const returnTo = safeReturnTo(new URLSearchParams(search).get("returnTo"));
     return (
-      <RedirectIfAuthenticated onNavigate={navigate}>
-        <LoginPage returnTo={returnTo} onNavigate={navigate} />
+      <RedirectIfAuthenticated to={returnTo} onNavigate={navigate}>
+        <LoginPage onNavigate={navigate} />
       </RedirectIfAuthenticated>
     );
   }
@@ -88,7 +115,7 @@ export function AppRouter() {
   }
 
   // The query string is part of returnTo so invite and approve links survive
-  // the round trip through hosted login.
+  // the trip through the login page.
   return (
     <RequireAuth currentPath={path + search} onNavigate={navigate}>
       <AppShell activePath={path.startsWith("/trips/") ? "/" : path} onNavigate={navigate}>

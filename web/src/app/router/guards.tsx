@@ -23,12 +23,12 @@ export function RequireAuth({ children, currentPath, onNavigate }: GuardProps & 
   return <>{children}</>;
 }
 
-export function RedirectIfAuthenticated({ children, onNavigate }: GuardProps) {
+export function RedirectIfAuthenticated({ children, onNavigate, to = "/" }: GuardProps & { to?: string }) {
   const { status } = useAuth();
 
   useEffect(() => {
-    if (status === "authenticated") onNavigate("/");
-  }, [status, onNavigate]);
+    if (status === "authenticated") onNavigate(to);
+  }, [status, onNavigate, to]);
 
   if (status === "loading" || status === "authenticated") return <LoadingScreen />;
   return <>{children}</>;

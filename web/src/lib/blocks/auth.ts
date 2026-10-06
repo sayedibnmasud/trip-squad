@@ -1,17 +1,12 @@
 import { blocksClient } from "./client";
-import { blocksConfig } from "./config";
 import { isJwtExpired } from "./jwt";
 
-// IAM's hosted IdP flow sets the session as a Secure, httpOnly cookie by
-// default -- this app never sees that token and must not try to. Bearer
-// tokens below are only populated when a tenant's OIDC config explicitly
-// opts into returning tokens in the response body instead of a cookie; in
-// the default cookie flow every function below simply no-ops around them.
+// IAM can set the session as a Secure, httpOnly cookie -- this app never
+// sees that token and must not try to. Bearer tokens below are only
+// populated when IAM also returns tokens in the response body; in a pure
+// cookie flow every function below simply no-ops around them.
 const TOKEN_KEY = "blocks-app:access-token";
 const REFRESH_TOKEN_KEY = "blocks-app:refresh-token";
-const RETURN_KEY = "blocks-app:oidc-return-to";
-
-export type CallbackResult = { ok: true; returnTo: string } | { ok: false; message: string };
 
 let cachedAccessToken: string | undefined;
 let cachedRefreshToken: string | undefined;
@@ -160,34 +155,80 @@ export async function fetchSessionClaims(): Promise<Record<string, unknown> | un
   }
 }
 
-export async function startLogin(returnTo?: string): Promise<void> {
-  if (!blocksConfig.oidcClientId) {
-    throw new Error("Login is not configured. Set VITE_BLOCKS_OIDC_CLIENT_ID in .env.");
+// Thrown for IAM's well-known login rejections so the login page can show a
+// translated message instead of IAM's raw English error_description.
+export class LoginError extends Error {
+  constructor(readonly code: "invalid_credentials" | "mfa_required" | "unknown", message: string) {
+    super(message);
   }
-
-  sessionStorage.setItem(RETURN_KEY, returnTo || "/");
-  await blocksClient.auth.idp.redirectToProvider();
 }
 
-export async function completeLogin(callbackUrl: string): Promise<CallbackResult> {
-  const returnTo = sessionStorage.getItem(RETURN_KEY) || "/";
-
-  sessionStorage.removeItem(RETURN_KEY);
-
-  const data = await blocksClient.auth.idp.callback(callbackUrl);
+// Sign-in happens on this app's own login page, never on a Blocks-hosted
+// one: the email and password go straight to IAM's AuthController
+// (POST /iam/v4/auth/login). Like the old hosted flow, IAM may set the
+// session as an httpOnly cookie on this response, return tokens in the body,
+// or both -- a body token is cached, and AuthProvider then confirms the
+// session through auth/me either way.
+export async function signInWithPassword(input: { email: string; password: string; rememberMe: boolean }): Promise<void> {
+  const data = await blocksClient.auth.login({
+    username: input.email.trim(),
+    password: input.password,
+    rememberMe: input.rememberMe
+  });
 
   if (data.error) {
-    return { message: data.error_description || data.error, ok: false };
+    const message = data.error_description || data.error;
+    if (data.error === "invalid_username_password") throw new LoginError("invalid_credentials", message);
+    throw new LoginError("unknown", message);
   }
 
-  // In the default cookie flow IAM sets the session via Set-Cookie on this
-  // same response and returns no token in the body -- that's success, not
-  // a failure. Only cache a token here if a non-default OIDC config made
-  // IAM return one.
+  // Two-step sign-in is off for this project; if it is ever switched on,
+  // IAM answers with an MFA challenge instead of a session, which this
+  // form can't complete yet.
+  if (data.mfaId || data.enable_mfa || data.enableMfa) {
+    throw new LoginError("mfa_required", "This account needs a verification code to sign in.");
+  }
+
   const accessToken = data.access_token ?? data.accessToken;
   if (accessToken) persistTokens(accessToken, data.refresh_token ?? data.refreshToken);
+}
 
-  return { ok: true, returnTo };
+// IAM's account endpoints (signup, recover, reset, activate) answer
+// { isSuccess, errors } rather than throwing -- turn a rejection into an
+// Error carrying IAM's own messages.
+export function ensureIamSuccess(response: unknown, fallback: string): void {
+  const body = (response ?? {}) as { isSuccess?: boolean; errors?: Record<string, string> | null };
+  const errors = Object.values(body.errors ?? {}).filter(Boolean);
+  if (body.isSuccess === false || errors.length) {
+    throw new Error(errors.join(" ") || fallback);
+  }
+}
+
+// IAM emails a reset link to <accountActionBaseUrl>/<recoverAccountPath>,
+// which the auth config points at this app's /reset-password page.
+export async function requestPasswordReset(email: string): Promise<void> {
+  ensureIamSuccess(await blocksClient.auth.recover({ email: email.trim() }), "Couldn't send the reset email.");
+}
+
+export async function resetPassword(code: string, password: string): Promise<void> {
+  ensureIamSuccess(await blocksClient.auth.resetPassword({ code, password }), "Couldn't reset the password.");
+}
+
+// Same for the activation link sent after sign-up: it lands on this app's
+// /activate page, where the person chooses their password.
+export async function activateAccount(code: string, password: string): Promise<void> {
+  ensureIamSuccess(await blocksClient.auth.activate({ code, password }), "Couldn't activate the account.");
+}
+
+// The code in an emailed IAM link. Depending on how IAM builds the URL it
+// arrives as a query parameter or as the last path segment
+// (/activate/<code>), so accept both.
+export function linkCode(path: string, search: string, base: string): string {
+  const params = new URLSearchParams(search);
+  const fromQuery = params.get("code") ?? params.get("token") ?? params.get("activationCode");
+  if (fromQuery) return fromQuery;
+  const rest = path.slice(base.length).replace(/^\/+|\/+$/g, "");
+  return rest ? decodeURIComponent(rest) : "";
 }
 
 export async function logout(): Promise<void> {

@@ -1,64 +1,63 @@
-import { LogIn, Luggage } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { LogIn } from "lucide-react";
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { useAuth } from "../../app/providers/AuthProvider";
-import { isLoginConfigured } from "../../lib/blocks/config";
+import { Button } from "../../components/ui/button";
+import { Input, Label } from "../../components/ui/input";
+import { LoginError } from "../../lib/blocks/auth";
 import { useT } from "../../lib/i18n/LocalizationProvider";
 import { Alert } from "../../shared/ui/Alert";
+import { AuthLayout } from "./AuthLayout";
 
-export function LoginPage({ onNavigate, returnTo }: { onNavigate?: (path: string) => void; returnTo?: string }) {
+export function LoginPage({ onNavigate }: { onNavigate: (path: string) => void }) {
   const { login } = useAuth();
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | undefined>();
   const { t } = useT();
-  const configured = isLoginConfigured();
+  const [form, setForm] = useState({ email: "", password: "", rememberMe: true });
+  // No navigation on success: once AuthProvider flips to authenticated,
+  // RedirectIfAuthenticated sends the person on to returnTo.
+  const signIn = useMutation({ mutationFn: () => login(form) });
+  const valid = form.email.trim() && form.password;
 
-  async function handleLogin() {
-    setError(undefined);
-    setPending(true);
-    try {
-      await login(returnTo);
-    } catch (caught) {
-      setError((caught as Error).message);
-      setPending(false);
-    }
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    if (valid) signIn.mutate();
+  }
+
+  function errorMessage(error: unknown): string {
+    if (error instanceof LoginError && error.code === "invalid_credentials") return t("auth.invalidCredentials");
+    if (error instanceof LoginError && error.code === "mfa_required") return t("auth.mfaRequired");
+    return (error as Error).message || t("auth.failed");
   }
 
   return (
-    <div className="auth-screen">
-      <div className="auth-art">
-        <span className="brand"><span className="brand-mark"><Luggage size={17} /></span>{t("app.name")}</span>
-        <div>
-          <h1>{t("auth.headline")}</h1>
-          <p>{t("auth.pitch")}</p>
+    <AuthLayout>
+      <form className="auth-card" onSubmit={submit}>
+        <h2>{t("auth.welcome")}</h2>
+        <p>{t("auth.subtitle")}</p>
+        <div className="grid gap-1.5">
+          <Label htmlFor="login-email">{t("signup.email")}</Label>
+          <Input id="login-email" type="email" autoComplete="username" autoFocus required value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
         </div>
-        {/* A dashed route between pins: the one decorative element on the page. */}
-        <svg className="auth-route" viewBox="0 0 520 300" fill="none" aria-hidden="true">
-          <path d="M20 270 C 140 250, 120 150, 230 150 S 360 60, 480 40" stroke="currentColor" strokeWidth="3" strokeDasharray="2 12" strokeLinecap="round" />
-          <circle cx="20" cy="270" r="9" fill="currentColor" />
-          <circle cx="230" cy="150" r="7" fill="none" stroke="currentColor" strokeWidth="3" />
-          <path d="M480 14c-11 0-20 9-20 20 0 15 20 34 20 34s20-19 20-34c0-11-9-20-20-20z" fill="currentColor" />
-        </svg>
-      </div>
-      <div className="auth-panel">
-        <div className="auth-card">
-          <h2>{t("auth.welcome")}</h2>
-          <p>{t("auth.subtitle")}</p>
-          {!configured ? (
-            <Alert tone="warn">
-              {t("auth.notConfigured")} <code>{window.location.origin}/login/callback</code>
-            </Alert>
-          ) : null}
-          {error ? <Alert tone="error">{error}</Alert> : null}
-          <button className="primary-button auth-submit" disabled={!configured || pending} onClick={handleLogin}>
-            <LogIn size={18} /> {pending ? t("auth.redirecting") : t("auth.continue")}
-          </button>
-          {onNavigate ? (
-            <p className="text-sm">
-              {t("signup.noAccount")} <button type="button" className="link-button" onClick={() => onNavigate("/signup")}>{t("signup.title")}</button>
-            </p>
-          ) : null}
+        <div className="grid gap-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="login-password">{t("auth.password")}</Label>
+            <button type="button" className="link-button text-sm" onClick={() => onNavigate("/forgot-password")}>{t("auth.forgot")}</button>
+          </div>
+          <Input id="login-password" type="password" autoComplete="current-password" required value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
         </div>
-      </div>
-    </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" className="h-4 w-4 accent-[hsl(var(--primary))]" checked={form.rememberMe} onChange={(event) => setForm({ ...form, rememberMe: event.target.checked })} />
+          {t("auth.rememberMe")}
+        </label>
+        {signIn.isError ? <Alert tone="error">{errorMessage(signIn.error)}</Alert> : null}
+        <Button type="submit" size="lg" className="auth-submit" disabled={!valid || signIn.isPending}>
+          <LogIn size={18} /> {signIn.isPending ? t("auth.signingIn") : t("auth.continue")}
+        </Button>
+        <p className="text-sm">
+          {t("signup.noAccount")} <button type="button" className="link-button" onClick={() => onNavigate("/signup")}>{t("signup.title")}</button>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }

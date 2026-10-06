@@ -1,12 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { fetchSessionClaims, logout as endSession, onSessionExpired, startLogin } from "../../lib/blocks/auth";
+import { fetchSessionClaims, logout as endSession, onSessionExpired, signInWithPassword } from "../../lib/blocks/auth";
 
 type AuthStatus = "authenticated" | "loading" | "unauthenticated";
 
 type AuthContextValue = {
   claims: Record<string, unknown> | undefined;
-  login: (returnTo?: string) => Promise<void>;
+  login: (credentials: { email: string; password: string; rememberMe: boolean }) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   status: AuthStatus;
@@ -54,8 +54,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // session server-side, this just gets the UI to notice and redirect.
   useEffect(() => onSessionExpired(() => void refresh()), [refresh]);
 
-  const login = useCallback(async (returnTo?: string) => {
-    await startLogin(returnTo);
+  // IAM accepting the password isn't the end of it: the session must also
+  // be readable through auth/me, or RequireAuth would bounce straight back
+  // to /login. Fail loudly here instead of looping.
+  const login = useCallback(async (credentials: { email: string; password: string; rememberMe: boolean }) => {
+    await signInWithPassword(credentials);
+    const sessionClaims = await fetchSessionClaims();
+    if (!sessionClaims) throw new Error("Signed in, but the session could not be confirmed. Please try again.");
+    setClaims(sessionClaims);
+    setStatus("authenticated");
   }, []);
 
   const logout = useCallback(async () => {

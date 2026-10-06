@@ -17,7 +17,3 @@ export const blocksConfig = {
 export function isBlocksConfigured(): boolean {
   return Boolean(blocksConfig.apiUrl && blocksConfig.xBlocksKey && blocksConfig.appDomain);
 }
-
-export function isLoginConfigured(): boolean {
-  return Boolean(blocksConfig.apiUrl && blocksConfig.oidcUrl && blocksConfig.oidcClientId);
-}
