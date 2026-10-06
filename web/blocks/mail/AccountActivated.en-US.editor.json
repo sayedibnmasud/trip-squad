@@ -1,0 +1,86 @@
+{
+  "page": {
+    "body": {
+      "container": {
+        "style": {
+          "background-color": "#F1F4F2"
+        }
+      },
+      "content": {
+        "computedStyle": {
+          "linkColor": "#0D826B",
+          "messageBackgroundColor": "#F1F4F2",
+          "messageWidth": "600px"
+        },
+        "style": {
+          "color": "#16312B",
+          "font-family": "'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+        }
+      },
+      "type": "mailup-bee-page-properties",
+      "webFonts": [
+        {
+          "fontFamily": "'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif",
+          "url": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=Hind+Siliguri:wght@400;600&display=swap",
+          "weights": "400,600,700,800"
+        }
+      ]
+    },
+    "description": "",
+    "rows": [
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "html": {
+                    "html": "<!-- Inbox preview text -->\n<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;color:#F1F4F2;\">You're all set. Sign in and start your first trip.</div>\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background:#F1F4F2;\">\n  <tr><td align=\"center\" style=\"padding:32px 12px;\">\n    <!--[if mso]><table role=\"presentation\" width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td><![endif]-->\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:100%;max-width:600px;background:#FFFFFF;border-radius:18px;overflow:hidden;\">\n      <tr>\n        <td class=\"ts-pad\" style=\"background:#16312B;padding:26px 40px 22px 40px;\">\n          <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n            <tr>\n              <td width=\"34\" height=\"34\" align=\"center\" valign=\"middle\" style=\"background:#F3B43F;border-radius:9px;font-size:18px;line-height:34px;\">&#129523;</td>\n              <td style=\"padding-left:12px;font-family:'Bricolage Grotesque','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;line-height:34px;font-weight:800;letter-spacing:-0.3px;color:#FFFFFF;\">Trip Squad</td>\n            </tr>\n          </table>\n        </td>\n      </tr>\n      <tr>\n        <td class=\"ts-pad\" style=\"background:#16312B;padding:0 40px 0 40px;font-size:0;line-height:0;\">\n          <div style=\"border-top:3px dashed #F3B43F;height:0;width:100%;\"></div>\n        </td>\n      </tr>\n      <tr>\n        <td style=\"background:#16312B;height:18px;font-size:0;line-height:0;\">&nbsp;</td>\n      </tr>\n      <tr>\n        <td class=\"ts-pad\" style=\"padding:36px 40px 12px 40px;\">\n          <p class=\"ts-h1\" style=\"margin:0 0 18px 0;font-family:'Bricolage Grotesque','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:30px;line-height:34px;font-weight:800;letter-spacing:-0.6px;color:#16312B;\">You're all set, {{DisplayName}}</p>\n          <p style=\"margin:0 0 14px 0;font-family:'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:25px;color:#16312B;\">Your Trip Squad account is active. Sign in to create a trip, invite your friends and start suggesting places.</p>\n          <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin:10px 0 14px 0;\">\n            <tr>\n              <td align=\"center\" bgcolor=\"#0D826B\" style=\"border-radius:999px;\">\n                <a href=\"https://dbcdsi-eoeuw.slsblx.com/login\" target=\"_blank\" style=\"display:inline-block;padding:14px 30px;font-family:'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:16px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:999px;\">Sign in to Trip Squad</a>\n              </td>\n            </tr>\n          </table>\n        </td>\n      </tr>\n      <tr>\n        <td class=\"ts-pad\" style=\"padding:22px 40px 28px 40px;\">\n          <div style=\"border-top:1px solid #DAE2DD;padding-top:18px;\">\n            <p style=\"margin:0;font-family:'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:20px;color:#5D6F69;\">You're getting this because a Trip Squad account was activated with this email address. If that wasn't you, reset your password from the sign-in page.</p>\n            <p style=\"margin:10px 0 0 0;font-family:'Hind Siliguri','Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:18px;color:#5D6F69;\">Trip Squad &middot; Plan the trip together &middot; <a href=\"https://dbcdsi-eoeuw.slsblx.com\" target=\"_blank\" style=\"color:#0D826B;text-decoration:none;\">dbcdsi-eoeuw.slsblx.com</a></p>\n          </div>\n        </td>\n      </tr>\n    </table>\n    <!--[if mso]></td></tr></table><![endif]-->\n  </td></tr>\n</table>"
+                  },
+                  "style": {
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px"
+                  }
+                },
+                "type": "mailup-bee-newsletter-modules-html"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "padding-bottom": "0px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "0px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent"
+          }
+        },
+        "content": {
+          "style": {
+            "background-color": "transparent",
+            "color": "#16312B",
+            "width": "600px"
+          }
+        },
+        "type": "one-column-empty"
+      }
+    ],
+    "template": {
+      "name": "template-base",
+      "type": "basic",
+      "version": "2.0.0"
+    },
+    "title": "Your Trip Squad account is ready"
+  },
+  "comments": {}
+}
